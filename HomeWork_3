@@ -1,0 +1,43 @@
+import datetime
+
+def get_birthdays_per_week(users):
+    # определяем текущую дату
+    today = datetime.date.today()
+    # определяем день недели текущей даты (0 - понедельник, 6 - воскресенье)
+    weekday = today.weekday()
+    # определяем дату понедельника текущей недели
+    monday = today - datetime.timedelta(days=weekday)
+
+    # создаем словарь, где ключ - день недели, значение - список именниников
+    birthdays_per_week = {i: [] for i in range(7)}
+    for user in users:
+        # получаем день рождения пользователя
+        birthday = user['birthday'].date()
+        # определяем день недели дня рождения
+        birthday_weekday = birthday.weekday()
+        # определяем дату ближайшего дня рождения после понедельника текущей недели
+        if birthday_weekday >= weekday:
+            next_birthday = monday + datetime.timedelta(days=birthday_weekday-weekday)
+        else:
+            next_birthday = monday + datetime.timedelta(days=birthday_weekday-weekday+7)
+        # если дата ближайшего дня рождения находится в текущей неделе, добавляем пользователя в список
+        if next_birthday <= monday + datetime.timedelta(days=6):
+            name = user['name']
+            # добавляем имя пользователя в список для соответствующего дня недели
+            birthdays_per_week[next_birthday.weekday()].append(name)
+
+    # выводим список пользователей для каждого дня недели
+    for i in range(7):
+        day = monday + datetime.timedelta(days=i)
+        if birthdays_per_week[i]:
+            names = ", ".join(birthdays_per_week[i])
+            print(f"{day.strftime('%A')}: {names}")
+
+users = [
+    {'name': 'Alice', 'birthday': datetime.datetime(1990, 4, 23)},
+    {'name': 'Bob', 'birthday': datetime.datetime(1985, 5, 12)},
+    {'name': 'Charlie', 'birthday': datetime.datetime(1995, 4, 28)},
+    {'name': 'Dave', 'birthday': datetime.datetime(1980, 5, 8)}
+]
+
+get_birthdays_per_week(users)
