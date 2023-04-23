@@ -1,43 +1,44 @@
 import datetime
 
 def get_birthdays_per_week(users):
-    # определяем текущую дату
-    today = datetime.date.today()
-    # определяем день недели текущей даты (0 - понедельник, 6 - воскресенье)
-    weekday = today.weekday()
-    # определяем дату понедельника текущей недели
-    monday = today - datetime.timedelta(days=weekday)
+    # Получаем текущую дату и время
+    today = datetime.datetime.now()
 
-    # создаем словарь, где ключ - день недели, значение - список именниников
-    birthdays_per_week = {i: [] for i in range(7)}
+    # Определяем дату на следующий понедельник
+    next_monday = today + datetime.timedelta(days=(7 - today.weekday()))
+
+    # Определяем дату на следующий воскресенье
+    next_sunday = next_monday + datetime.timedelta(days=6)
+
+    # Определяем дату на два дня назад
+    two_days_ago = today - datetime.timedelta(days=2)
+
+    # Создаем словарь, в котором ключами будут дни недели
+    # а значениями - список именинников в этот день
+    birthdays = {
+        'Monday': [],
+        'Tuesday': [],
+        'Wednesday': [],
+        'Thursday': [],
+        'Friday': [],
+        'Saturday': [],
+        'Sunday': []
+    }
+
+    # Итерируемся по списку пользователей
     for user in users:
-        # получаем день рождения пользователя
-        birthday = user['birthday'].date()
-        # определяем день недели дня рождения
-        birthday_weekday = birthday.weekday()
-        # определяем дату ближайшего дня рождения после понедельника текущей недели
-        if birthday_weekday >= weekday:
-            next_birthday = monday + datetime.timedelta(days=birthday_weekday-weekday)
-        else:
-            next_birthday = monday + datetime.timedelta(days=birthday_weekday-weekday+7)
-        # если дата ближайшего дня рождения находится в текущей неделе, добавляем пользователя в список
-        if next_birthday <= monday + datetime.timedelta(days=6):
-            name = user['name']
-            # добавляем имя пользователя в список для соответствующего дня недели
-            birthdays_per_week[next_birthday.weekday()].append(name)
+        name = user['name']
+        birthday = user['birthday']
 
-    # выводим список пользователей для каждого дня недели
-    for i in range(7):
-        day = monday + datetime.timedelta(days=i)
-        if birthdays_per_week[i]:
-            names = ", ".join(birthdays_per_week[i])
-            print(f"{day.strftime('%A')}: {names}")
+        # Проверяем, находится ли день рождения в текущей неделе
+        if next_monday <= birthday <= next_sunday or two_days_ago <= birthday < next_monday:
+            # Определяем день недели дня рождения
+            weekday = birthday.strftime('%A')
 
-users = [
-    {'name': 'Alice', 'birthday': datetime.datetime(1990, 4, 23)},
-    {'name': 'Bob', 'birthday': datetime.datetime(1985, 5, 12)},
-    {'name': 'Charlie', 'birthday': datetime.datetime(1995, 4, 28)},
-    {'name': 'Dave', 'birthday': datetime.datetime(1980, 5, 8)}
-]
+            # Добавляем имя пользователя в список именинников этого дня
+            birthdays[weekday].append(name)
 
-get_birthdays_per_week(users)
+    # Выводим список именинников по дням недели
+    for weekday, names in birthdays.items():
+        if names:
+            print(f'{weekday}: {", ".join(names)}')
